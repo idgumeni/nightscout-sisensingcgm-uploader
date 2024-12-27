@@ -1,7 +1,16 @@
 # Nightscout Sisensing CGM Uploader
 Script written in python to periodically upload Sisensing (SiBionics) CGM (CG1) glucose data to Nightscout.
 
-*Only tested with the Chinese CGM and database. A Chinese mobile number is required for signing up.
+*Only tested with the Chinese models and API. A Chinese mobile number is required for signing up.
+
+Model Tested:
+- A4 (Original. Double packaging)
+- A4 2024-05 (Second model. Single packaging)
+
+App Tested:
+- 硅基动感![image](https://github.com/user-attachments/assets/3d00d476-090c-4e64-9dbf-d3a9e694c998)
+
+
 
 ## Configuration
 The script takes the following environment variables
@@ -21,12 +30,15 @@ Enable `server side retry` to prevent rate-limiting errors for Azure Cosmos DB f
 https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/prevent-rate-limiting-errors  
 
 ## Obtain Sisensing API Bearer Token
-- Register and run your Sisensing (SiBionics) app on mobile phone first.
-- Install a packet capture app on your mobile. eg. Http traffic capture for iOS. PCAPdroid for andriod.
+- Use your main phone the master device and log in with the main device mode to read data from CGM.
+- Use your spare phone and log in as follower mode to retrieve history data stored on the server.
+- Install a packet capture app on your spare phone. eg. Http traffic capture for iOS. PCAPdroid for andriod.
 - Install the required certificate per the packet capture app instruction.
-- Scan Sisensing app.
+- Scan Sisensing app on your spare phone.
+- Find an entry matching the API address. (ie. `api.sisensing.com/follow/app/follow/myself/glucose/details/devices` for CN server)
+- Under `Response` json file, you should see a list of glucose entries. Congrats. You find the correct one.
 - Under `Request header`, find `Authorization:Bearer ...`. "`...`" is your `ss_token`.
-- If Sisensing app is reinstalled, you may need to repeat the above step.
+- If Sisensing app is reinstalled or logged in on another device with the same phone number, you may need to repeat the above step.
 
 ## Hashing Nightscout API token
 `ns_api_secret`  must be a SHA1 hash of an Access Token from Nightscout (Add new subject first in Nightscout's Admin Tools if required), e.g. your Access Token for a subject named Sisensing might be `sisensing-123456789abcde`.
