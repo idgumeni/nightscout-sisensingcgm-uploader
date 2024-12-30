@@ -1,5 +1,6 @@
 from setup import *
 import urllib3
+import requests
 import json
 import datetime
 
@@ -19,16 +20,17 @@ def convert_mgdl_to_mmoll(x):
 
 # Sisensing API
 # process Sisensing data
-def get_ss_entries(header):
+def get_ss_entries(header, filter_data):
     url = return_ss_url(ss_region.upper())
-    r = urllib3.request("GET", url=url,headers=header, retries=retries, timeout=timeout)
+    r=requests.post(url, json=filter_data, headers=header)
     try:
-        data = json.loads(r.data)
-        print("Sisensing Response Status:" , r.status, r.reason)
-    except json.JSONDecodeError:
+        data = r.json()
+        print("Sisensing Response Status:" , r.status_code , r.reason)
+    except requests.JSONDecodeError:
         content_type = r.headers.get('Content-Type')
-        print("Failed. Content Type" , content_type)
+        print("Failed. Content Type " , content_type)
     return data
+
 
 # Nightscout API v1
 # Nightscout entries
@@ -44,7 +46,7 @@ def get_last_entry_date(header):
             print("Last entry date: no data")
             return 0
         else:
-            print("Last entry date:", data[0]["date"] ,"( GMT",datetime.datetime.utcfromtimestamp(data[0]["date"]/1000),")")
+            print("Last entry date:", data[0]["date"] ,"( GMT",datetime.datetime.utcfromtimestamp(int(data[0]["date"])/1000),")")
             return data[0]["date"]
     except json.JSONDecodeError:
         content_type = r.headers.get('Content-Type')
@@ -83,14 +85,14 @@ def process_json_data_prepare_entries(item,last_date,count,list_dict): # item ty
             #
             if uploader_max_entries !=0 and count >= uploader_max_entries:
                 break
-            if j["t"]>last_date or uploader_all_data==True:
+            if int(j["t"])>last_date or uploader_all_data==True:
                 entry_dict = {
                     "type" : "sgv",
                     "sgv" : convert_mmoll_to_mgdl(j["v"]),
                     "direction" : process_json_data_direction(j["s"]),
                     "device": ns_uploder,
-                    "date" : j["t"],
-                    "dateString": str(datetime.datetime.utcfromtimestamp(j["t"]/1000).isoformat(timespec='milliseconds')+"Z")
+                    "date" : int(j["t"]),
+                    "dateString": str(datetime.datetime.utcfromtimestamp(int(j["t"])/1000).isoformat(timespec='milliseconds')+"Z")
                 }
                 list_dict.append(entry_dict)
                 count +=1
@@ -104,13 +106,13 @@ def process_json_data(data,last_date):
     list_dict = []
     print("Processing data...")
     try:
-        if type(data["data"]["glucoseDataList"]) == list:
-            for i in data["data"]["glucoseDataList"]:
+        if type(data["data"]) == list:
+            for i in data["data"]:
                 count,list_dict = process_json_data_prepare_entries(i,last_date,count,list_dict)
-        elif type(data["data"]["glucoseDataList"]) == dict:
-            count,list_dict = process_json_data_prepare_entries(i,last_date,count,list_dict)
+        elif type(data["data"]) == dict:
+            count,list_dict = process_json_data_prepare_entries(data["data"],last_date,count,list_dict)
         else:
-            print(type(data["data"]["glucoseDataList"]), " recieved. Check API content.")
+            print(type(data["data"]), " recieved. Check API content.")
     except Exception as error:
         print("Error reading glucose data:", error)
     # finally:

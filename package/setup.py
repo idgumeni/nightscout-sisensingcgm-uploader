@@ -74,7 +74,7 @@ region_list = ["CN","EU"]
 if ss_region.upper() not in region_list:
     sys.exit(ss_region, "not found.")
 region_cn = "https://api.sisensing.com/follow/app/follow/myself/glucose/details/devices"
-region_eu = "https://cgm-ce.sisensing.com/user/app/follow/sharer"
+region_eu = "https://cgm-ce.sisensing.com/user/app/follow/deviceGlucose"
 
 # uploader initialisation
 ns_uploder = "Nightscout-Sisensing-Uploader"
@@ -92,3 +92,6 @@ ss_header = {"Authorization":ss_token,
              "Content-Type": "application/json",
              "Accept":"application/json",
              }
+ss_filter_data = {"range": "6",             #hours read behind
+	              "id": "18585876xxxxxxxx"  #sibionic follower id (use pcapdroid)
+	              }

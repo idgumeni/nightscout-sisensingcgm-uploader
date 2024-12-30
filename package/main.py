@@ -16,7 +16,7 @@ def main():
 
     # get Sisensing data
     try:
-        ss_data = get_ss_entries(ss_header)
+        ss_data = get_ss_entries(ss_header, ss_filter_data)
     except Exception as error:
         print("Error requesting from Sisensing:", error)
 
