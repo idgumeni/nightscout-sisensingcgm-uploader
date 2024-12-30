@@ -93,5 +93,5 @@ ss_header = {"Authorization":ss_token,
              "Accept":"application/json",
              }
 ss_filter_data = {"range": "6",             #hours read behind
-	              "id": "18585876xxxxxxxx"  #sibionic follower id (use pcapdroid)
+	              "id": "18585876xxxxxxxx"  #sibionic follower id (use pcapdroid to find your ID)
 	              }
